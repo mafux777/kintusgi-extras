@@ -1,8 +1,8 @@
 {
-  "name": "kusama-balances",
+  "name": "kintsugi-x",
   "private": true,
   "scripts": {
-    "build": "rm -rf lib && tsc",
+    "build": "rm -rf lib && node generateTypes.js && tsc",
     "init": "node db/init.js",
     "db:migrate": "npx sqd db migrate",
     "schema:reset": "",
@@ -11,7 +11,18 @@
     "processor:docker-run": "bash scripts/docker-run.sh",
     "query-node:start": "squid-graphql-server",
     "lint": "npm run lint:prod -- --fix",
-    "lint:prod": "eslint . --ext .ts --ignore-path .gitignore --max-warnings 0"
+    "lint:prod": "eslint . --ext .ts --ignore-path .gitignore --max-warnings 0",
+    "gen:json": "node indexer/generateTypes.js",
+    "gen:explore:kintsugi": "squid-substrate-metadata-explorer --chain wss://api-kusama.interlay.io/parachain --archive https://api-kusama.interlay.io/gateway-graphql/v1/graphql --out indexer/kintsugi.chainVersions.json",
+    "gen:types:kintsugi": "squid-substrate-typegen typegen.json",
+    "gen:code": "sqd codegen",
+    "gen:distributables": "cp indexer/types.json distributable/ && cp schema.graphql distributable/",
+    "db:create": "sqd db create",
+    "db:drop": "sqd db drop",
+    "db:create-migration": "sqd db create-migration",
+    "db:revert": "sqd db revert",
+    "db:reset": "sqd db drop && sqd db create && sqd db migrate"
+
   },
   "dependencies": {
     "@subsquid/archive-registry": "^0.0.6",
@@ -21,9 +32,11 @@
     "@subsquid/substrate-processor": "^0.7.2",
     "dotenv": "^16.0.0",
     "pg": "^8.7.3",
-    "typeorm": "^0.2.41"
+    "typeorm": "^0.2.41",
+    "@polkadot/util-crypto": "^7.9.2"
   },
   "devDependencies": {
+    "@interlay/interbtc-types":"^1.6.0",
     "@subsquid/substrate-metadata-explorer": "^0.0.8",
     "@subsquid/substrate-typegen": "^0.4.3",
     "@types/node": "^16.11.27",

@@ -1,13 +1,40 @@
 type Account @entity {
   "Account address"
   id: ID!
-  balance: BigInt!
-  historicalBalances: [HistoricalBalance!] @derivedFrom(field: "account")
+  kintsugi: String
+  karura: String
+  kusama: String
+  moonriver: String
 }
 
-type HistoricalBalance @entity {
-  id: ID!
-  account: Account!
-  balance: BigInt!
-  date: DateTime!
+enum Token {
+    DOT
+    INTR
+    KSM
+    KINT
+    IBTC
+    KBTC
 }
+
+"Mapping of parachain raw/absolute blocks to parachain active blocks"
+type Height @entity {
+    id: ID!
+    "Should be equal to the absolute value, for determinism"
+    absolute: Int! @index
+    active: Int!
+}
+
+
+type Transfer @entity {
+    "A cross-chain token transfer"
+    id: ID!
+    token: Token!
+    from: Account!
+    fromChain: Int!
+    to: Account!
+    toChain: Int!
+    height: Height!
+    timestamp: DateTime!
+    amount: BigInt!
+}
+

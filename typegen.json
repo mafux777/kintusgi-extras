@@ -1,9 +1,13 @@
 {
   "outDir": "src/types",
-  "chainVersions": "kusamaVersions.json",
-  "typesBundle": "kusama",
+  "chainVersions": "indexer/kintsugi.chainVersions.json",
+  "typesBundle": "kintsugi",
   "events": [
-    "balances.Transfer"
+    "tokens.Transfer",
+    "xTokens.TransferredMultiCurrencies",
+    "xTokens.TransferredWithFee",
+    "xTokens.TransferredMultiAssetWithFee",
+    "xTokens.TransferredMultiAssets"
   ],
   "calls": []
 }

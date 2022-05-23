@@ -1,6 +1,4 @@
-import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, OneToMany as OneToMany_} from "typeorm"
-import * as marshal from "./marshal"
-import {HistoricalBalance} from "./historicalBalance.model"
+import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_} from "typeorm"
 
 @Entity_()
 export class Account {
@@ -14,9 +12,15 @@ export class Account {
   @PrimaryColumn_()
   id!: string
 
-  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-  balance!: bigint
+  @Column_("text", {nullable: true})
+  kintsugi!: string | undefined | null
 
-  @OneToMany_(() => HistoricalBalance, e => e.account)
-  historicalBalances!: HistoricalBalance[]
+  @Column_("text", {nullable: true})
+  karura!: string | undefined | null
+
+  @Column_("text", {nullable: true})
+  kusama!: string | undefined | null
+
+  @Column_("text", {nullable: true})
+  moonriver!: string | undefined | null
 }
