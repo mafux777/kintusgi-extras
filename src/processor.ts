@@ -14,10 +14,12 @@ import { CurrencyId_Token as CurrencyId_TokenV15 } from "./types/v15";
 import * as ss58 from "@subsquid/ss58";
 import { LessThanOrEqual } from "typeorm";
 import { debug } from "util";
+import {EventHandlerContext} from "@subsquid/substrate-processor"
 
 require("dotenv").config()
+
 import * as util from "@polkadot/util-crypto"
-//const util = require("@polkadot/util-crypto");
+import {EventContext} from "./types/support";
 
 const prefixes = {
   polkadot: 0,
@@ -71,6 +73,29 @@ export const currencyId = {
 };
 
 
+const create_multi_account = async function (id: Uint8Array, ctx: EventHandlerContext): Promise<Account> {
+  const accId = ss58.codec("kintsugi").encode(id);
+  const acc = await getOrCreate(ctx.store, Account, accId);
+  acc['kintsugi'] = accId
+  acc['karura'] = ss58.codec("karura").encode(id);
+  acc['kusama'] = ss58.codec("kusama").encode(id);
+  acc['moonriver'] = '0x' + Buffer.from(util.addressToEvm(util.encodeAddress(id))).toString('hex');
+  return await ctx.store.save(acc);
+}
+
+const toFloat = function(b: bigint, digits: number): number {
+  const myString = b.toString()
+  const myLen = myString.length
+  if (myLen > 6){
+    const short = myString.substring(0, myLen-6);
+    const myNumber = parseFloat(short) / (10** (digits-6))
+    return myNumber;
+  }
+  else {
+    return(0);
+  }
+}
+
 processor.addEventHandler("tokens.Transfer", async (ctx) => {
   const rawEvent = new TokensTransferEvent(ctx);
   let e;
@@ -87,22 +112,8 @@ processor.addEventHandler("tokens.Transfer", async (ctx) => {
 
   const height = await blockToHeight(ctx.store, ctx.block.height, "RequestIssue");
 
-  const from = ss58.codec("kintsugi").encode(e.from);
-  const to = ss58.codec("kintsugi").encode(e.to);
-
-  const fromAcc = await getOrCreate(ctx.store, Account, from);
-  fromAcc['kintsugi'] = ss58.codec("kintsugi").encode(e.from);
-  fromAcc['karura'] = ss58.codec("karura").encode(e.from);
-  fromAcc['kusama'] = ss58.codec("kusama").encode(e.from);
-  fromAcc['moonriver'] = '0x' + Buffer.from(util.addressToEvm(util.encodeAddress(e.from))).toString('hex');
-  await ctx.store.save(fromAcc);
-
-  const toAcc = await getOrCreate(ctx.store, Account, to);
-  toAcc['kintsugi'] = ss58.codec("kintsugi").encode(e.to);
-  toAcc['karura'] = ss58.codec("karura").encode(e.to);
-  toAcc['kusama'] = ss58.codec("kusama").encode(e.to);
-  toAcc['moonriver'] = '0x' + Buffer.from(util.addressToEvm(util.encodeAddress(e.to))).toString('hex');
-  await ctx.store.save(toAcc);
+  const fromAcc = await create_multi_account(e.from, ctx)
+  const toAcc = await create_multi_account(e.to, ctx)
 
   const id = `${ctx.event.id}-transfer`;
   const myTransfer = await getOrCreate(ctx.store, Transfer, id) as Transfer;
@@ -114,12 +125,19 @@ processor.addEventHandler("tokens.Transfer", async (ctx) => {
   myTransfer.timestamp = new Date(ctx.block.timestamp);
   myTransfer.token = currencyId.token.encode(e.currencyId)
   myTransfer.amount = e.amount
+  let short : number;
+  if (myTransfer.token in ['BTC', 'KBTC']){
+    short = toFloat(e.amount, 6)
+  }
+  else {
+    short = toFloat(e.amount, 12)
+  }
   myTransfer.id = id;
   await ctx.store.save(myTransfer);
 
 
 
-  console.log(`${fromAcc.id} -> ${toAcc.id}: ${e.amount} ${myTransfer.token}`)
+  console.log(`${fromAcc.id} -> ${toAcc.id}: ${short} ${myTransfer.token}`)
 });
 
 
@@ -165,9 +183,12 @@ processor.addEventHandler("xTokens.TransferredMultiAssetWithFee", async (ctx) =>
 const isToken = (object: any): object is Token => !!object &&
   object.name === 'currencyId' && !!object.value.token;
 
+const is2Token = (object: any): object is Token => !!object &&
+  object.name === 'currencies';
+
 processor.addEventHandler("xTokens.TransferredMultiAssets", async (ctx) => {
   const rawEvent = new XTokensTransferredMultiAssetsEvent(ctx);
-  let myToken : Token = Token.INTR; // if you see this in the data it's likely to be a bug
+  let myToken : Token;
   if(ctx.extrinsic){
     if(Array.isArray(ctx.extrinsic.args))
     {
@@ -176,10 +197,20 @@ processor.addEventHandler("xTokens.TransferredMultiAssets", async (ctx) => {
         // @ts-ignore
         myToken = Token[tokenCurrency.value.token];
       }
+      else if (!!tokenCurrency && "name" in tokenCurrency && tokenCurrency.name==='currencies')
+      {
+        // @ts-ignore
+        myToken = Token[tokenCurrency.value[0][0].token] // ignore the KINT bit for now
+      }
+      else {
+        return
+      }
     }
-    else { return }
+    else {
+      return }
   }
-  else{ return }
+  else{
+    return }
 
   let e;
   if(rawEvent.isV10) {
@@ -193,9 +224,8 @@ processor.addEventHandler("xTokens.TransferredMultiAssets", async (ctx) => {
     return
   }
   const height = await blockToHeight(ctx.store, ctx.block.height, "xTokens.TransferredMultiAssets");
-  const from = ss58.codec("kintsugi").encode(e.sender);
-  const fromAcc = await getOrCreate(ctx.store, Account, from);
-  await ctx.store.save(fromAcc);
+
+  const fromAcc = await create_multi_account(e.sender, ctx)
 
   const id = `${ctx.event.id}-xtransfer`;
   const myTransfer = await getOrCreate(ctx.store, Transfer, id);
@@ -232,7 +262,7 @@ processor.addEventHandler("xTokens.TransferredMultiAssets", async (ctx) => {
           myTransfer.to = await getOrCreate(ctx.store, Account, toAccount);
           myTransfer.to['kusama'] = 'unknown'
           await ctx.store.save(myTransfer.to);
-          console.log(`${fromAcc.id} -> ${e.assets[0].fun.value} ${myTransfer.token}`);
+          console.log(`${fromAcc.id} -> ${myTransfer.token}`);
           myTransfer.id = id;
           await ctx.store.save(myTransfer);
         }
