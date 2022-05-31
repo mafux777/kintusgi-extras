@@ -1,5 +1,5 @@
 *.ipynb_checkpoints
 *.vscode
-/dash/venv
+/venv/
 *.DS_Store
 /dash/__pycache__/
