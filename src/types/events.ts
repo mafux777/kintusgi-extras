@@ -4,6 +4,7 @@ import * as v1 from './v1'
 import * as v10 from './v10'
 import * as v11 from './v11'
 import * as v15 from './v15'
+import * as v17 from './v17'
 import * as v6 from './v6'
 
 export class TokensTransferEvent {
@@ -71,14 +72,29 @@ export class TokensTransferEvent {
     return this.ctx._chain.decodeEvent(this.ctx.event)
   }
 
-  get isLatest(): boolean {
-    deprecateLatest()
-    return this.isV15
+  /**
+   * Transfer succeeded.
+   */
+  get isV17(): boolean {
+    return this.ctx._chain.getEventHash('tokens.Transfer') === '7e7dbd0d1749f3d1ce62a6cb731a143be6c8c24d291fdd7dc24892ff941ffe3b'
   }
 
-  get asLatest(): {currencyId: v15.CurrencyId, from: v15.AccountId32, to: v15.AccountId32, amount: bigint} {
+  /**
+   * Transfer succeeded.
+   */
+  get asV17(): {currencyId: v17.CurrencyId, from: v17.AccountId32, to: v17.AccountId32, amount: bigint} {
+    assert(this.isV17)
+    return this.ctx._chain.decodeEvent(this.ctx.event)
+  }
+
+  get isLatest(): boolean {
     deprecateLatest()
-    return this.asV15
+    return this.isV17
+  }
+
+  get asLatest(): {currencyId: v17.CurrencyId, from: v17.AccountId32, to: v17.AccountId32, amount: bigint} {
+    deprecateLatest()
+    return this.asV17
   }
 }
 

@@ -11,6 +11,7 @@ import {
 import { Account, Height, Token, Transfer } from "./model";
 import { CurrencyId_Token as CurrencyId_TokenV6 } from "./types/v6";
 import { CurrencyId_Token as CurrencyId_TokenV15 } from "./types/v15";
+import { CurrencyId_Token as CurrencyId_TokenV17 } from "./types/v17";
 import * as ss58 from "@subsquid/ss58";
 import { LessThanOrEqual } from "typeorm";
 import { debug } from "util";
@@ -56,21 +57,21 @@ const processFrom = Number(process.env.PROCESS_FROM) || 0;
 processor.setBlockRange({ from: processFrom });
 
 
-export const currencyId = {
-  token: {
-    encode(token: CurrencyId_TokenV6 | CurrencyId_TokenV15) {
-      if (token.value.__kind === "INTERBTC") {
-        token = {
-          ...token,
-          value: {
-            __kind: "INTR"
-          }
-        };
-      }
-      return Token[(token as CurrencyId_TokenV15).value.__kind];
-    },
-  },
-};
+// export const currencyId = {
+//   token: {
+//     encode(token: CurrencyId_TokenV6 | CurrencyId_TokenV15) {
+//       if (token.value.__kind === "INTERBTC") {
+//         token = {
+//           ...token,
+//           value: {
+//             __kind: "INTR"
+//           }
+//         };
+//       }
+//       return Token[(token as CurrencyId_TokenV15).value.__kind];
+//     },
+//   },
+// };
 
 
 const create_multi_account = async function (id: Uint8Array, ctx: EventHandlerContext): Promise<Account> {
@@ -105,6 +106,9 @@ processor.addEventHandler("tokens.Transfer", async (ctx) => {
   else if(rawEvent.isV15) {
     e = rawEvent.asV15;
   }
+  else if(rawEvent.isV17) {
+    e = rawEvent.asV17;
+  }
   else {
     console.log("Not the right event version?");
     return
@@ -123,7 +127,8 @@ processor.addEventHandler("tokens.Transfer", async (ctx) => {
   myTransfer.toChain = 2092;
   myTransfer.height = height;
   myTransfer.timestamp = new Date(ctx.block.timestamp);
-  myTransfer.token = currencyId.token.encode(e.currencyId)
+  // @ts-ignore
+  myTransfer.token = Token[e.currencyId.value.__kind]
   myTransfer.amount = e.amount
   let short : number;
   if (myTransfer.token in ['BTC', 'KBTC']){
