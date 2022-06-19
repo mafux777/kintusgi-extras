@@ -1,4 +1,4 @@
-# kintusgi-extras
+# kintusgi-extras - Kintsugi Vault and Transfer Dashboard
 
 This is a dashboard visualization of the squid created for tracking Kintsugi vaults and transfers utilizing Plotly's Dash package. *The Subsquid implementation used in the squid.py file can be found in the kintsugi-x branch of this repo along with an exploratory Jupyter Notebook for analyzing the data retrieved from the squid.*
 
@@ -40,3 +40,8 @@ This dashboard shows the labelled vaults and total transfers by these vaults. It
 - [Dash](https://dash.plot.ly/) - Main server and interactive components
 - [Plotly Python](https://plot.ly/python/) - Used to create the interactive plots
 
+## Screenshots
+
+<img width="1575" alt="image" src="https://user-images.githubusercontent.com/72612765/174494628-7ea996d9-c10a-4680-abd9-bc71d69b59ff.png">
+
+![image](https://user-images.githubusercontent.com/72612765/174494660-24211ac0-f92d-4c27-91df-79388f549740.png)
