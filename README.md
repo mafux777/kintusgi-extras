@@ -13,6 +13,8 @@ can be used to label Account IDs in meaningful ways.
 Finally, we used an open source visualisation framework for Python to build 
 a new dashboard.
 
+![image](https://user-images.githubusercontent.com/72612765/174494702-43d9d97c-2f40-496c-89a7-ee3db219bde1.png)
+
 
 ## Prerequisites
 
