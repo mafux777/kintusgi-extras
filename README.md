@@ -6,18 +6,20 @@ This is a dashboard visualization of the squid created for tracking Kintsugi vau
 
 ### Running the app locally
 
-Clone the repo and install requirements with pip
+Clone the repo to a local directory.
 
-```
-pip install -r requirements.txt
-```
-
-Then create a virtual environment and activate it.
+Create a virtual environment and activate it.
 
 ```
 python -m venv venv
 
 source venv/bin/activate
+```
+
+Install requirements with pip
+
+```
+pip install -r requirements.txt
 ```
 
 Clone the git repo, then install the requirements with pip
