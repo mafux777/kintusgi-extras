@@ -27,14 +27,12 @@ Clone the git repo, then install the requirements with pip
 Run the app and open it at http://127.0.0.1:8050/
 
 ```
-
 python ./dash/app.py
-
 ```
 
 ## About the app
 
-This dashbaord shows the labelled vaults and total transfers by these vaults. It fetches data from a custom subsquid and creates a poor man's cache in the form of several CSV files. These must be deleted to fetch new data. The date range sets a distance from today's date in the graph and the statistics above the graph. The transfer data along with all labels is also shown in a table below the graph and can be exported to a CSV file.
+This dashboard shows the labelled vaults and total transfers by these vaults. It fetches data from a custom subsquid and creates a poor man's cache in the form of several CSV files. These must be deleted to fetch new data. The date range sets a distance from today's date in the graph and the statistics above the graph. The transfer data along with all labels is also shown in a table below the graph and can be exported to a CSV file.
 
 ## Built With
 
