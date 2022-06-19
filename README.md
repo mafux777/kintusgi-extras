@@ -24,8 +24,6 @@ pip install -r requirements.txt
 
 Clone the git repo, then install the requirements with pip
 
-```
-
 Run the app and open it at http://127.0.0.1:8050/
 
 ```
