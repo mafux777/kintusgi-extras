@@ -1,63 +1,45 @@
 # kintusgi-extras
+pi
 
-# Dash Natural Gas Well Production
-
-This is a demo of the Dash interactive Python framework developed by [Plotly](https://plot.ly/).
-
-Dash abstracts away all of the technologies and protocols required to build an interactive web-based application and is a simple and effective way to bind a user interface around your Python code. To learn more check out our [documentation](https://plot.ly/dash).
+This is a dashboard visualization of the squid created for tracking Kintsugi vaults and transfers utilizing Plotly's Dash package. *The Subsquid implementation used in the squid.py file can be found in the kintsugi-x branch of this repo.*
 
 ## Getting Started
 
 ### Running the app locally
 
-First create a virtual environment with conda or venv inside a temp folder, then activate it.
+Clone the repo and install requirements with pip
 
 ```
-virtualenv venv
+pip install -r requirements.txt
+```
 
-# Windows
-venv\Scripts\activate
-# Or Linux
+Then create a virtual environment and activate it.
+
+```
+python -m venv venv
+
 source venv/bin/activate
-
 ```
 
 Clone the git repo, then install the requirements with pip
 
 ```
 
-git clone https://github.com/plotly/dash-sample-apps
-cd dash-sample-apps/apps/dash-oil-and-gas
-pip install -r requirements.txt
+Run the app and open it at http://127.0.0.1:8050/
 
 ```
 
-Run the app
-
-```
-
-python app.py
+python ./dash/app.py
 
 ```
 
 ## About the app
 
-This Dash app displays oil production in western New York. There are filters at the top of the app to update the graphs below. By selecting or hovering over data in one plot will update the other plots ('cross-filtering').
+This dashbaord shows the labelled vaults and total transfers by these vaults. It fetches data from a custom subsquid and creates a poor man's cache in the form of several CSV files. These must be deleted to fetch new data. The date range sets a distance from today's date in the graph and the statistics above the graph. The transfer data along with all labels is also shown in a table below the graph and can be exported to a CSV file.
 
 ## Built With
 
+- [Subsquid](https://subsquid.io/) - Data sourcing via GraphQL
 - [Dash](https://dash.plot.ly/) - Main server and interactive components
 - [Plotly Python](https://plot.ly/python/) - Used to create the interactive plots
-
-## Screenshots
-
-The following are screenshots for the app in this repo:
-
-![animated1](screenshots/animated1.gif)
-
-![screenshot](screenshots/screenshot1.png)
-
-![screenshot](screenshots/screenshot2.png)
-
-![screenshot](screenshots/screenshot3.png)
 
