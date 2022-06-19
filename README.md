@@ -1,7 +1,7 @@
 # kintusgi-extras
 pi
 
-This is a dashboard visualization of the squid created for tracking Kintsugi vaults and transfers utilizing Plotly's Dash package. *The Subsquid implementation used in the squid.py file can be found in the kintsugi-x branch of this repo.*
+This is a dashboard visualization of the squid created for tracking Kintsugi vaults and transfers utilizing Plotly's Dash package. *The Subsquid implementation used in the squid.py file can be found in the kintsugi-x branch of this repo along with an exploratory Jupyter Notebook for analyzing the data retrieved from the squid.*
 
 ## Getting Started
 
