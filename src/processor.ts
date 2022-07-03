@@ -22,25 +22,6 @@ require("dotenv").config()
 import * as util from "@polkadot/util-crypto"
 import {EventContext} from "./types/support";
 
-const prefixes = {
-  polkadot: 0,
-  kusama: 2,
-  plasm: 5,
-  bifrost: 6,
-  edgeware: 7,
-  karura: 8,
-  reynolds: 9,
-  acala: 10,
-  laminar: 11,
-  substratee: 13,
-  kulupu: 16,
-  darwinia: 18,
-  robonomics: 32,
-  centrifuge: 36,
-  substrate: 42,
-  chainx: 44
-};
-
 
 const processor = new SubstrateProcessor(
   "kintsugi"
@@ -55,24 +36,6 @@ processor.setTypesBundle("indexer/typesBundle.json");
 
 const processFrom = Number(process.env.PROCESS_FROM) || 0;
 processor.setBlockRange({ from: processFrom });
-
-
-// export const currencyId = {
-//   token: {
-//     encode(token: CurrencyId_TokenV6 | CurrencyId_TokenV15) {
-//       if (token.value.__kind === "INTERBTC") {
-//         token = {
-//           ...token,
-//           value: {
-//             __kind: "INTR"
-//           }
-//         };
-//       }
-//       return Token[(token as CurrencyId_TokenV15).value.__kind];
-//     },
-//   },
-// };
-
 
 const create_multi_account = async function (id: Uint8Array, ctx: EventHandlerContext): Promise<Account> {
   const accId = ss58.codec("kintsugi").encode(id);
@@ -116,6 +79,22 @@ processor.addEventHandler("tokens.Transfer", async (ctx) => {
 
   const height = await blockToHeight(ctx.store, ctx.block.height, "RequestIssue");
 
+  //if(ctx.extrinsic && ctx.extrinsic.name==='escrowAnnuity.withdrawRewards'){
+  if(ctx.extrinsic){
+    if(ctx.extrinsic.name==='escrowAnnuity.withdrawRewards'){
+      return
+    }
+    if(ctx.extrinsic.name==='fee.withdrawRewards'){
+      return
+    }
+    console.log(`${ctx.extrinsic.name}`)
+  }
+
+  if(e.amount==456621004566){
+    console.log(`Ignoring this transfer`);
+    return
+  }
+
   const fromAcc = await create_multi_account(e.from, ctx)
   const toAcc = await create_multi_account(e.to, ctx)
 
@@ -142,7 +121,7 @@ processor.addEventHandler("tokens.Transfer", async (ctx) => {
 
 
 
-  console.log(`${fromAcc.id} -> ${toAcc.id}: ${short} ${myTransfer.token}`)
+  console.log(`${myTransfer.timestamp}:${fromAcc.id} -> ${toAcc.id}: ${short} ${myTransfer.token}`)
 });
 
 
@@ -253,7 +232,7 @@ processor.addEventHandler("xTokens.TransferredMultiAssets", async (ctx) => {
           // we use kintsugi address as the main address and assume karura address has been saved already
           myTransfer.to = await getOrCreate(ctx.store, Account, toAccount);
           await ctx.store.save(myTransfer.to);
-          console.log(`${fromAcc.id} -> ${myTransfer.to.id} ${myTransfer.token}`);
+          console.log(`${myTransfer.timestamp}:${fromAcc.id} -> ${myTransfer.to.id} ${myTransfer.token}`);
           myTransfer.id = id;
           await ctx.store.save(myTransfer);
         }
