@@ -90,6 +90,7 @@ processor.addEventHandler("tokens.Transfer", async (ctx) => {
     console.log(`${ctx.extrinsic.name}`)
   }
 
+  // @ts-ignore
   if(e.amount==456621004566){
     console.log(`Ignoring this transfer`);
     return
